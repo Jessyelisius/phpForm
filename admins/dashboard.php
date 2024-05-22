@@ -69,10 +69,27 @@ echo "<br ><a style='color:black;' href='logout.php'>Logout</a>";
             url: 'fetch_users.php',
             method: 'GET',
             success: function(data) {
-                $('#userTable tbody').html(data);
+                $('#userTable ').html(data);
             }
         });
     }
+    $(document).on('click', '.delete-button', function() {
+            const userId = $(this).data('id');
+            if (confirm('Are you sure you want to delete this user?')) {
+                $.ajax({
+                    url: 'delete_user.php',
+                    method: 'POST',
+                    data: { id: userId },
+                    success: function(response) {
+                        fetchUsers();
+                    }
+                });
+            }
+        });
+
+        $(document).ready(function() {
+            fetchUsers();
+        });
 
     function checkForNewUser() {
         $.ajax({
