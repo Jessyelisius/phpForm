@@ -47,44 +47,81 @@ echo "<br ><a style='color:black;' href='logout.php'>Logout</a>";
     </div>
 
   </div>
-   
+  <audio id="newUserSound" src="bell.mp3" preload="auto"></audio>
 
-    <script>
-        function fetchUsers() {
-            $.ajax({
-                url: 'fetch_users.php',
-                method: 'GET',
-                success: function(data) {
-                    $('#userTable').append(data);
-                }
-            });
-        }
+<script>
+    let lastUserId = 0;
 
-        $(document).ready(function() {
-            fetchUsers();
-
-            $(document).on('click', '.edit', function() {
-                var id = $(this).data('id');
-                var username = prompt('Enter new username:');
-                var email = prompt('Enter new email:');
-                if (username && email) {
-                    $.ajax({
-                        url: 'update_user.php',
-                        method: 'POST',
-                        data: {id: id, username: username, email: email},
-                        success: function(response) {
-                            alert('User updated successfully.');
-                            location.reload();
-                        },
-                        error: function() {
-                            alert('Error updating user.');
-                        }
-                    });
-                }
-            });
+    function fetchUsers() {
+        $.ajax({
+            url: 'fetch_users.php',
+            method: 'GET',
+            success: function(data) {
+                $('#userTable tbody').html(data);
+            }
         });
-    </script>
+    }
+
+    function checkForNewUser() {
+        $.ajax({
+            url: 'latest_user.php',
+            method: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                if (data && data.id > lastUserId) {
+                    lastUserId = data.id;
+                    $('#newUserSound')[0].play();
+                    fetchUsers();
+                }
+            }
+        });
+    }
+
+    $(document).ready(function() {
+        fetchUsers();
+
+        $(document).on('click', '.edit', function() {
+            var id = $(this).data('id');
+            var username = prompt('Enter new username:');
+            var email = prompt('Enter new email:');
+            if (username && email) {
+                $.ajax({
+                    url: 'update_user.php',
+                    method: 'POST',
+                    data: {id: id, username: username, email: email},
+                    success: function(response) {
+                        alert('User updated successfully.');
+                        fetchUsers();
+                    },
+                    error: function() {
+                        alert('Error updating user.');
+                    }
+                });
+            }
+        });
+
+        // Initially fetch the last user ID
+        $.ajax({
+            url: 'latest_user.php',
+            method: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                if (data) {
+                    lastUserId = data.id;
+                }
+            }
+        });
+
+        // Check for new users every 5 seconds
+        setInterval(checkForNewUser, 5000);
+    });
+</script>
+<button onclick="document.getElementById('newUserSound').play();">Test Sound</button>
+
+
 
 <?php
     require "footer.php";
 ?>
+
+
