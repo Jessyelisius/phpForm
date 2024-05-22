@@ -49,8 +49,20 @@ echo "<br ><a style='color:black;' href='logout.php'>Logout</a>";
   </div>
   <audio id="newUserSound" src="bell.mp3" preload="auto"></audio>
 
+   <!-- Interaction prompt -->
+   <button id="enableSound">Enable Sound</button>
+    <div id="soundStatus"></div>
+
 <script>
     let lastUserId = 0;
+    let soundEnabled = false;
+
+    document.getElementById('enableSound').addEventListener('click', function() {
+            soundEnabled = true;
+            document.getElementById('soundStatus').innerText = "Sound enabled";
+            this.style.display = 'none'; // Hide the button after enabling sound
+        });
+
 
     function fetchUsers() {
         $.ajax({
@@ -116,7 +128,7 @@ echo "<br ><a style='color:black;' href='logout.php'>Logout</a>";
         setInterval(checkForNewUser, 5000);
     });
 </script>
-<button onclick="document.getElementById('newUserSound').play();">Test Sound</button>
+
 
 
 
